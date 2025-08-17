@@ -34,6 +34,7 @@ def transform_group(group_items):
 			'fullEmail': full_email,
 			'password': password,
 			'checkTime': current_time,
+			'region': 'US',
 			'status': '正常',
 			'regionName': '美国',
 		})

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>靠谱2 - 成对采集安装器 v6.0</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif; background: #f5f7fb; margin: 0; }
+        .container { max-width: 980px; margin: 0 auto; padding: 24px 16px; }
+        .card { background: #fff; border-radius: 14px; box-shadow: 0 12px 30px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 16px; }
+        .title { font-size: 22px; font-weight: 700; color: #1f2937; margin: 0 0 10px 0; }
+        .subtitle { color: #6b7280; font-size: 14px; }
+        .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .btn { background: linear-gradient(90deg, #2563eb, #7c3aed); color: #fff; border: none; padding: 10px 16px; border-radius: 10px; cursor: pointer; transition: .2s; font-weight: 600; }
+        .btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
+        .stat { font-size: 13px; color: #374151; }
+        .textarea { width: 100%; height: 420px; border: 1px solid #e5e7eb; border-radius: 10px; background: #0b1020; color: #abf7b1; padding: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 12px; line-height: 1.45; }
+        .muted { color: #6b7280; font-size: 12px; }
+        .bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .badge { display: inline-flex; align-items: center; background: #e8f0ff; color: #1d4ed8; border-radius: 999px; padding: 3px 8px; font-size: 12px; font-weight: 600; }
+        .info { background: #f1f5f9; border-left: 3px solid #0284c7; padding: 10px 12px; border-radius: 8px; color: #0f172a; font-size: 13px; }
+        .k { background: #0b1020; color: #f59e0b; padding: 8px 10px; border-radius: 8px; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="bar">
+                <div>
+                    <div class="title">🛡️ 靠谱2 成对采集安装器 v6.0</div>
+                    <div class="subtitle">自动按“关键词一 + 关键词二”配对点击并采集剪贴板内容，导出为 TXT（每行 JSON 对象）。</div>
+                </div>
+                <span class="badge">已修复：复制捕获/导出格式</span>
+            </div>
+            <div class="info" style="margin-bottom:10px;">
+                使用方法：点击下方“复制安装代码”，在目标网页按 F12 打开 Console，粘贴并回车。设置关键词一/二与点击顺序，点击开始即可自动配对采集。
+            </div>
+            <div class="row" style="margin-bottom:8px;">
+                <button id="copyInstall" class="btn">📋 复制安装代码</button>
+                <span class="stat">长度：<span id="len">0</span> 字符</span>
+            </div>
+            <textarea id="code" class="textarea" readonly placeholder="正在生成安装代码..."></textarea>
+            <div class="muted" style="margin-top:8px;">导出格式示例：<span class="k">{"fullEmail": "关键词一内容", "password": "关键词二内容", "checkTime": "2025-8-16 01:30:44"}</span></div>
+        </div>
+    </div>
+
+    <script>
+    (function prepareInstallerPage(){
+        var INSTALL_CODE = `// 成对采集工具 v6.0 - 关键词一 + 关键词二
+(function(){
+    'use strict';
+
+    try { if (window.pairScraperV60 && window.pairScraperV60.panel) { window.pairScraperV60.panel.remove(); } } catch(_) {}
+
+    var lastWriteText = '';
+    var lastCopyEventText = '';
+    var originalWriteText = (navigator.clipboard && navigator.clipboard.writeText) ? navigator.clipboard.writeText.bind(navigator.clipboard) : null;
+    if (originalWriteText) {
+        try {
+            navigator.clipboard.writeText = function(text){
+                try { lastWriteText = String(text || ''); } catch(_) {}
+                return originalWriteText(text).catch(function(){ return Promise.resolve(); });
+            };
+        } catch(_){}
+    }
+    try {
+        document.addEventListener('copy', function(e){
+            try {
+                var t = (e && e.clipboardData) ? e.clipboardData.getData('text/plain') : '';
+                if (t) lastCopyEventText = t;
+            } catch(_){}
+        }, true);
+    } catch(_){}
+
+    function createPanel(){
+        var p = document.createElement('div');
+        p.id = 'pair-scraper-panel-v60';
+        p.style.position = 'fixed';
+        p.style.top = '20px';
+        p.style.right = '20px';
+        p.style.width = '420px';
+        p.style.background = 'linear-gradient(135deg,#4f46e5,#06b6d4)';
+        p.style.color = '#fff';
+        p.style.padding = '14px';
+        p.style.borderRadius = '14px';
+        p.style.zIndex = '2147483647';
+        p.style.boxShadow = '0 20px 50px rgba(0,0,0,0.3)';
+        p.style.fontSize = '12px';
+        p.style.fontFamily = '-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,\'Microsoft YaHei\',sans-serif';
+        p.style.maxHeight = '80vh';
+        p.style.overflowY = 'auto';
+
+        p.innerHTML = (
+            '<div style="text-align:center;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:6px;font-weight:700">🛡️ 成对采集工具 v6.0</div>'+
+            '<div id="perm" style="background:rgba(255,255,255,.12);padding:8px;border-radius:8px;margin-bottom:8px;">📋 剪贴板权限检测中...</div>'+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">'+
+                '<div><div style="font-size:11px;margin-bottom:4px;">关键词一</div><input id="kwA" value="fullEmail" style="width:100%;padding:6px;border:none;border-radius:8px;color:#111;"></div>'+
+                '<div><div style="font-size:11px;margin-bottom:4px;">关键词二</div><input id="kwB" value="password" style="width:100%;padding:6px;border:none;border-radius:8px;color:#111;"></div>'+
+            '</div>'+
+            '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">'+
+                '<label style="font-size:11px;background:rgba(0,0,0,.25);padding:6px 8px;border-radius:8px;">顺序: '+
+                    '<select id="orderSel" style="border:none;border-radius:6px;padding:3px 6px;margin-left:6px;">'+
+                        '<option value="A2B" selected>先点关键词一 → 再点关键词二</option>'+
+                        '<option value="B2A">先点关键词二 → 再点关键词一</option>'+
+                    '</select>'+
+                '</label>'+
+                '<label style="font-size:11px;"><input id="debug" type="checkbox" style="margin-right:4px;">调试模式</label>'+
+            '</div>'+
+            '<div style="margin-bottom:6px;">'+
+                '<div style="font-size:11px;margin-bottom:3px;">⏱️ 点击/等待延迟 (秒)</div>'+
+                '<input id="delay" type="range" min="1" max="8" value="2" style="width:100%">'+
+                '<div id="delayV" style="font-size:11px;">2 秒</div>'+
+            '</div>'+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">'+
+                '<button id="test" style="background:rgba(168,85,247,.9);border:none;color:#fff;padding:8px;border-radius:8px;cursor:pointer;">🧪 测试</button>'+
+                '<button id="permBtn" style="background:rgba(251,191,36,.95);border:none;color:#111;padding:8px;border-radius:8px;cursor:pointer;">🔍 权限</button>'+
+                '<button id="start" style="background:rgba(34,197,94,.95);border:none;color:#fff;padding:8px;border-radius:8px;cursor:pointer;">🚀 开始</button>'+
+                '<button id="stop" style="display:none;background:rgba(239,68,68,.95);border:none;color:#fff;padding:8px;border-radius:8px;cursor:pointer;">⏹️ 停止</button>'+
+                '<button id="clear" style="background:rgba(100,116,139,.95);border:none;color:#fff;padding:8px;border-radius:8px;cursor:pointer;">🗑️ 清空</button>'+
+                '<button id="export" style="display:none;background:rgba(59,130,246,.95);border:none;color:#fff;padding:8px;border-radius:8px;cursor:pointer;">💾 导出 TXT</button>'+
+            '</div>'+
+            '<div id="stats" style="background:rgba(0,0,0,.25);padding:8px;border-radius:8px;margin-bottom:8px;text-align:center;">'+
+                'A匹配: <span id="statA">0</span> | B匹配: <span id="statB">0</span> | 配对: <span id="statP">0</span> | 成功: <span id="statS">0</span>'+
+            '</div>'+
+            '<div id="log" style="background:rgba(0,0,0,.35);padding:10px;border-radius:10px;max-height:220px;overflow:auto;line-height:1.35;">🔧 工具就绪，设置关键词后点击测试或开始</div>'
+        );
+        document.body.appendChild(p);
+        return p;
+    }
+
+    var isRunning = false; var stopFlag = false; var debug = false; var delayMs = 2000;
+    var results = []; // {fullEmail, password, checkTime}
+    var foundA = []; var foundB = []; var pairs = []; var successCount = 0;
+
+    var panel = createPanel();
+    var el = {
+        perm: panel.querySelector('#perm'),
+        kwA: panel.querySelector('#kwA'),
+        kwB: panel.querySelector('#kwB'),
+        orderSel: panel.querySelector('#orderSel'),
+        debug: panel.querySelector('#debug'),
+        delay: panel.querySelector('#delay'),
+        delayV: panel.querySelector('#delayV'),
+        test: panel.querySelector('#test'),
+        permBtn: panel.querySelector('#permBtn'),
+        start: panel.querySelector('#start'),
+        stop: panel.querySelector('#stop'),
+        clear: panel.querySelector('#clear'),
+        exportBtn: panel.querySelector('#export'),
+        statA: panel.querySelector('#statA'),
+        statB: panel.querySelector('#statB'),
+        statP: panel.querySelector('#statP'),
+        statS: panel.querySelector('#statS'),
+        log: panel.querySelector('#log')
+    };
+
+    function log(msg, type){
+        var color = '#E3F2FD';
+        if (type === 'ok') color = '#22c55e';
+        if (type === 'warn') color = '#f59e0b';
+        if (type === 'err') color = '#ef4444';
+        if (type === 'dbg') color = '#a78bfa';
+        var t = new Date().toLocaleTimeString();
+        el.log.innerHTML += '<div style="color:'+color+'">['+t+'] '+msg+'</div>';
+        el.log.scrollTop = el.log.scrollHeight;
+        try{ console.log('[PairScraper] '+msg); }catch(_){ }
+    }
+
+    function setStats(){
+        el.statA.textContent = String(foundA.length);
+        el.statB.textContent = String(foundB.length);
+        el.statP.textContent = String(pairs.length);
+        el.statS.textContent = String(successCount);
+        el.exportBtn.style.display = results.length > 0 ? 'block' : 'none';
+    }
+
+    function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+    async function checkPerm(){
+        try {
+            if (navigator.permissions && navigator.permissions.query) {
+                var r = await navigator.permissions.query({ name: 'clipboard-read' });
+                el.perm.textContent = '📋 剪贴板权限: '+r.state;
+                el.perm.style.background = (r.state === 'granted' ? 'rgba(34,197,94,.25)' : 'rgba(251,191,36,.25)');
+                return r.state === 'granted';
+            }
+        } catch(_){}
+        el.perm.textContent = '📋 无法检测剪贴板权限';
+        return false;
+    }
+
+    async function readClipboardNow(){
+        try{
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                var t = await navigator.clipboard.readText();
+                return (t || '').trim();
+            }
+        }catch(_){ }
+        // execCommand 粘贴尝试（多数浏览器受限）
+        try{
+            var ta = document.createElement('textarea');
+            ta.style.position = 'fixed'; ta.style.left = '-9999px'; ta.style.top = '-9999px'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.focus(); ta.select();
+            var ok = document.execCommand('paste');
+            var v = ta.value || '';
+            document.body.removeChild(ta);
+            if (ok && v) return v.trim();
+        }catch(_){ }
+        return '';
+    }
+
+    function isVisible(elem){
+        if (!elem || !(elem instanceof Element)) return false;
+        var rect = elem.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return false;
+        var st = window.getComputedStyle(elem);
+        if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
+        return true;
+    }
+
+    function getElemLabel(elem){
+        var s = (elem.textContent || elem.value || elem.title || elem.getAttribute('aria-label') || elem.getAttribute('alt') || elem.getAttribute('data-tooltip') || '').trim();
+        if (!s) s = (elem.getAttribute('data-copy') || elem.getAttribute('data-clipboard-text') || elem.getAttribute('data-content') || '').trim();
+        return s;
+    }
+
+    function extractFromButtonOrNearby(elem){
+        try {
+            var attrs = ['data-clipboard-text','data-copy','data-content','data-value','data-text'];
+            for (var i=0;i<attrs.length;i++){ var v = elem.getAttribute(attrs[i]); if (v && String(v).trim()) return String(v).trim(); }
+            var near = [];
+            if (elem.nextElementSibling) near.push(elem.nextElementSibling);
+            if (elem.previousElementSibling) near.push(elem.previousElementSibling);
+            if (elem.parentElement) {
+                var cands = elem.parentElement.querySelectorAll('input,textarea,[contenteditable],code,pre,.content,.text,.copy-content');
+                for (var j=0;j<cands.length;j++) near.push(cands[j]);
+            }
+            for (var k=0;k<near.length;k++){
+                var n = near[k]; if (!n) continue;
+                var t = (n.value || n.textContent || n.getAttribute('data-content') || '').trim();
+                if (t && t.length > 1) return t;
+            }
+        } catch(_){}
+        return '';
+    }
+
+    function centerOf(elem){ var r = elem.getBoundingClientRect(); return { x: r.left + r.width/2, y: r.top + r.height/2, top:r.top, left:r.left}; }
+
+    function readingOrderSort(a, b){
+        var ca = centerOf(a.element), cb = centerOf(b.element);
+        var dy = Math.abs(ca.y - cb.y);
+        if (dy > 12) return ca.y - cb.y; // 行优先
+        return ca.x - cb.x; // 同行从左到右
+    }
+
+    function findButtonsByKeyword(keyword){
+        keyword = String(keyword || '').trim();
+        if (!keyword) return [];
+        var kw = keyword.toLowerCase();
+        var sels = [
+            'button:not([disabled])','input[type="button"]:not([disabled])','input[type="submit"]:not([disabled])',
+            'a[href]','[role="button"]:not([disabled])','.btn:not(.disabled)','[onclick]','[data-copy]','[data-clipboard-text]','[data-action*="copy"]','[data-type*="copy"]'
+        ];
+        var out = [];
+        for (var s=0;s<sels.length;s++){
+            var list; try { list = document.querySelectorAll(sels[s]); } catch(_){ list = []; }
+            for (var i=0;i<list.length;i++){
+                var e = list[i]; if (!isVisible(e)) continue;
+                var txt = getElemLabel(e).toLowerCase(); if (!txt) continue;
+                if (txt.indexOf(kw) === -1) continue;
+                out.push({ element: e, label: getElemLabel(e), selector: sels[s] });
+            }
+        }
+        // 去重（同一元素多次命中）
+        var seen = new Set(); var uniq = [];
+        for (var j=0;j<out.length;j++){
+            var k = out[j].element; if (seen.has(k)) continue; seen.add(k); uniq.push(out[j]);
+        }
+        uniq.sort(readingOrderSort);
+        return uniq;
+    }
+
+    function distance(e1, e2){ var c1 = centerOf(e1), c2 = centerOf(e2); var dx = c1.x - c2.x, dy = c1.y - c2.y; return Math.sqrt(dx*dx + dy*dy); }
+
+    function buildPairs(primary, secondary){
+        var used = new Set(); var res = [];
+        for (var i=0;i<primary.length;i++){
+            var a = primary[i]; var best = -1; var bestIdx = -1; var bestD = Infinity;
+            for (var j=0;j<secondary.length;j++){
+                if (used.has(j)) continue; var b = secondary[j];
+                var d = distance(a.element, b.element);
+                // 偏好 b 在视觉上位于 a 的同一行或下方
+                var cyA = centerOf(a.element).y, cyB = centerOf(b.element).y;
+                var penalty = cyB + 4 < cyA ? 10000 : 0; // b 在 a 上方时加惩罚
+                var score = d + penalty;
+                if (score < bestD){ bestD = score; bestIdx = j; best = j; }
+            }
+            if (bestIdx >= 0){ used.add(bestIdx); res.push({ a: a, b: secondary[bestIdx] }); }
+        }
+        return res;
+    }
+
+    function highlight(elem){ if (!elem) return function(){}; var old = elem.style.cssText; elem.style.cssText += ';outline: 3px solid #f59e0b !important; outline-offset: 2px !important;'; return function(){ elem.style.cssText = old; }; }
+
+    async function clickElement(elem){
+        try { elem.scrollIntoView({ behavior:'smooth', block:'center'}); } catch(_){}
+        await sleep(280);
+        try { elem.click(); return true; } catch(_){ }
+        try {
+            var r = elem.getBoundingClientRect();
+            ['mousedown','mouseup','click'].forEach(function(t){
+                var ev = new MouseEvent(t, {view:window,bubbles:true,cancelable:true, clientX:r.left+r.width/2, clientY:r.top+r.height/2});
+                elem.dispatchEvent(ev);
+            });
+            return true;
+        } catch(_){ }
+        try { elem.focus(); var kev = new KeyboardEvent('keydown',{key:'Enter',code:'Enter',bubbles:true}); elem.dispatchEvent(kev); return true; } catch(_){ }
+        return false;
+    }
+
+    function isInvalidNoise(text){
+        var t = (text||'').trim(); if (!t) return true;
+        var bad = [/^(复制|已复制|复制成功|复制內容|拷贝成功|成功复制|已拷贝)$/i];
+        for (var i=0;i<bad.length;i++){ if (bad[i].test(t)) return true; }
+        return false;
+    }
+
+    async function clickAndCapture(btnInfo, tag){
+        if (!btnInfo || !btnInfo.element) return '';
+        var preLW = lastWriteText; var preLC = lastCopyEventText; var preRead = await readClipboardNow();
+        if (debug) log('点击 '+tag+'：'+(btnInfo.label||''),'dbg');
+        var unhl = highlight(btnInfo.element);
+        await clickElement(btnInfo.element);
+        await sleep(delayMs);
+        unhl();
+        // 优先使用拦截到的 writeText / copy 事件
+        if (lastWriteText && lastWriteText !== preLW && !isInvalidNoise(lastWriteText)) return lastWriteText.trim();
+        if (lastCopyEventText && lastCopyEventText !== preLC && !isInvalidNoise(lastCopyEventText)) return lastCopyEventText.trim();
+        // 读取剪贴板
+        var now = await readClipboardNow();
+        if (now && now !== preRead && !isInvalidNoise(now)) return now.trim();
+        // 周边/属性回退
+        var near = extractFromButtonOrNearby(btnInfo.element);
+        if (near && !isInvalidNoise(near)) return near.trim();
+        return '';
+    }
+
+    function fmtTime(d){
+        var y=d.getFullYear(); var m=d.getMonth()+1; var da=d.getDate();
+        var hh=(''+d.getHours()).padStart(2,'0'); var mm=(''+d.getMinutes()).padStart(2,'0'); var ss=(''+d.getSeconds()).padStart(2,'0');
+        return y+'-'+m+'-'+da+' '+hh+':'+mm+':'+ss;
+    }
+
+    function jsonLine(obj){
+        function esc(v){ return JSON.stringify(String(v==null?'':v)); }
+        return '{"fullEmail": '+esc(obj.fullEmail)+', "password": '+esc(obj.password)+', "checkTime": '+esc(obj.checkTime)+'}';
+    }
+
+    async function doTest(){
+        debug = !!el.debug.checked; log('🧪 测试中...','');
+        foundA = findButtonsByKeyword(el.kwA.value);
+        foundB = findButtonsByKeyword(el.kwB.value);
+        var order = el.orderSel.value;
+        pairs = (order==='A2B') ? buildPairs(foundA, foundB) : buildPairs(foundB, foundA);
+        log('A 命中: '+foundA.length+'，B 命中: '+foundB.length+'，预计配对: '+pairs.length,'ok');
+        if (debug){
+            for (var i=0;i<Math.min(6,foundA.length);i++) log('  A['+(i+1)+']: '+foundA[i].label,'dbg');
+            for (var j=0;j<Math.min(6,foundB.length);j++) log('  B['+(j+1)+']: '+foundB[j].label,'dbg');
+        }
+        setStats();
+    }
+
+    async function start(){
+        if (isRunning) return; stopFlag=false; debug=!!el.debug.checked; delayMs = Number(el.delay.value||2)*1000;
+        el.start.style.display='none'; el.stop.style.display='block'; el.test.disabled=true; successCount=0;
+        if (!foundA.length && !foundB.length) await doTest();
+        if (!pairs.length){ log('⚠️ 无法配对，请检查关键词与页面按钮文本','err'); el.start.style.display='block'; el.stop.style.display='none'; el.test.disabled=false; return; }
+        isRunning=true; log('🚀 开始成对采集，共 '+pairs.length+' 组','');
+        results = [];
+        var order = el.orderSel.value; // A2B | B2A
+        for (var i=0;i<pairs.length && !stopFlag;i++){
+            var pr = pairs[i]; var first = (order==='A2B') ? pr.a : pr.b; var second = (order==='A2B') ? pr.b : pr.a;
+            log('🎯 第 '+(i+1)+' 组: 先点['+((order==='A2B')?'A':'B')+'] '+(first.label||'')+' → 再点['+((order==='A2B')?'B':'A')+'] '+(second.label||''),'');
+            var val1 = await clickAndCapture(first, (order==='A2B')?'A':'B');
+            var val2 = await clickAndCapture(second, (order==='A2B')?'B':'A');
+            var ct = fmtTime(new Date());
+            if (!val1 && !val2){ log('⚠️ 本组未捕获到有效内容，已跳过','warn'); continue; }
+            var rec = (order==='A2B') ? { fullEmail: val1||'', password: val2||'', checkTime: ct } : { fullEmail: val2||'', password: val1||'', checkTime: ct };
+            results.push(rec); successCount++;
+            log('✅ 已采集: '+jsonLine(rec),'ok');
+            setStats();
+            if (!stopFlag && i < pairs.length-1) await sleep(Math.max(800, Math.floor(delayMs/2)));
+        }
+        isRunning=false; el.start.style.display='block'; el.stop.style.display='none'; el.test.disabled=false;
+        if (stopFlag) log('⏹️ 已停止','warn'); else log('🎉 采集完成，成功 '+successCount+' 组','ok');
+    }
+
+    function stop(){ stopFlag=true; }
+
+    function clearAll(){ results=[]; foundA=[]; foundB=[]; pairs=[]; successCount=0; el.log.innerHTML='已清空'; setStats(); }
+
+    function exportTxt(){
+        if (!results.length){ alert('无数据可导出'); return; }
+        var lines = [];
+        for (var i=0;i<results.length;i++){ lines.push(jsonLine(results[i])); }
+        var content = lines.join('\n');
+        var blob = new Blob([content], {type:'text/plain;charset=utf-8'});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a'); a.href = url; a.download = '成对采集_'+(new Date().toISOString().slice(0,19).replace(/[T:]/g,'-'))+'.txt';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        log('💾 已导出 TXT','ok');
+    }
+
+    // 事件绑定
+    el.delay.addEventListener('input', function(){ el.delayV.textContent = this.value+' 秒'; delayMs = Number(this.value)*1000; });
+    el.permBtn.addEventListener('click', checkPerm);
+    el.test.addEventListener('click', function(){ doTest(); });
+    el.start.addEventListener('click', function(){ start(); });
+    el.stop.addEventListener('click', function(){ stop(); });
+    el.clear.addEventListener('click', function(){ clearAll(); });
+    el.exportBtn.addEventListener('click', function(){ exportTxt(); });
+    document.addEventListener('keydown', function(e){ if (e.ctrlKey && e.shiftKey){ var k=e.key.toLowerCase(); if (k==='s'){ e.preventDefault(); if(!isRunning) start(); } if(k==='x'){ e.preventDefault(); if(isRunning) stop(); } if(k==='t'){ e.preventDefault(); doTest(); } if(k==='c'){ e.preventDefault(); clearAll(); } } });
+
+    // 初始化
+    checkPerm();
+    window.pairScraperV60 = { panel: panel, start: start, stop: stop, test: doTest, clear: clearAll, export: exportTxt, results: results, version: '6.0' };
+    log('🛠️ 已注入：成对采集工具 v6.0','ok');
+})();`;
+
+        var ta = document.getElementById('code');
+        ta.value = INSTALL_CODE;
+        document.getElementById('len').textContent = String(INSTALL_CODE.length);
+        document.getElementById('copyInstall').addEventListener('click', function(){
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(INSTALL_CODE).then(function(){
+                        var b = document.getElementById('copyInstall');
+                        var old = b.textContent; b.textContent = '✅ 已复制';
+                        setTimeout(function(){ b.textContent = old; }, 2000);
+                    }).catch(function(){ fallbackCopy(); });
+                } else { fallbackCopy(); }
+            } catch(_) { fallbackCopy(); }
+            function fallbackCopy(){
+                ta.focus(); ta.select(); try{ var ok = document.execCommand('copy'); }catch(_){ ok=false; }
+                var b = document.getElementById('copyInstall');
+                var old = b.textContent; b.textContent = ok ? '✅ 已复制' : '❌ 复制失败';
+                setTimeout(function(){ b.textContent = old; }, 2000);
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

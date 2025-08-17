@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网页采集工具 - 修复版 v5.3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .code-block { 
+            background: #1a1a1a; 
+            color: #00ff00; 
+            font-family: 'Courier New', monospace; 
+            border: 1px solid #333;
+            white-space: pre-wrap;
+        }
+        .highlight { background: linear-gradient(90deg, #4ade80, #22c55e); }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div class="max-w-5xl mx-auto">
+            <header class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">🛡️ 网页采集工具 - 修复版 v5.3</h1>
+                <p class="text-gray-600">✅ 修复代码显示空白问题，优化文件格式，增强稳定性</p>
+            </header>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4">🔥 v5.3 版本更新</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h3 class="font-medium mb-2 text-green-800">✅ 本次修复：</h3>
+                        <ul class="text-sm text-green-700 space-y-1">
+                            <li>🛠️ 彻底修复安装代码显示空白问题</li>
+                            <li>📋 解决复制按钮无反应的问题</li>
+                            <li>📄 优化文件导出格式，去除多余分隔符</li>
+                            <li>🎨 改进代码构建方式，避免模板冲突</li>
+                            <li>⚡ 提升界面响应速度</li>
+                        </ul>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="font-medium mb-2 text-blue-800">🆕 文件格式改进：</h3>
+                        <ul class="text-sm text-blue-700 space-y-1">
+                            <li>📝 清晰的分组标题</li>
+                            <li>🕐 详细的时间记录</li>
+                            <li>📊 完整的统计信息</li>
+                            <li>🔍 智能内容分类</li>
+                            <li>💾 更好的可读性</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4">📖 安装说明</h2>
+                <div class="space-y-3 text-sm bg-blue-50 p-4 rounded-lg">
+                    <div class="flex items-start">
+                        <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-0.5">1</span>
+                        <div><strong>点击复制安装代码</strong> - 下方蓝色按钮，确保代码完整复制</div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-0.5">2</span>
+                        <div><strong>打开目标网页</strong> - 前往要采集的网站</div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-0.5">3</span>
+                        <div><strong>按F12打开控制台</strong> - 切换到Console标签页</div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-0.5">4</span>
+                        <div><strong>粘贴代码并回车</strong> - 右上角出现工具面板</div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-0.5">5</span>
+                        <div><strong>设置关键字并开始采集</strong> - 按关键字分组自动保存</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">💾 安装代码</h2>
+                    <button 
+                        onclick="copyInstallCode()" 
+                        id="copyButton"
+                        class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                    >
+                        📋 复制安装代码
+                    </button>
+                </div>
+                
+                <div class="bg-gray-100 p-4 rounded-lg mb-4 text-sm text-gray-600">
+                    <div class="flex items-center mb-2">
+                        <span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                        代码状态: <span id="codeStatus" class="font-medium text-green-600">已就绪</span>
+                    </div>
+                    <div>代码长度: <span id="codeLength" class="font-mono">0</span> 字符</div>
+                </div>
+                
+                <textarea 
+                    id="installCode" 
+                    readonly 
+                    class="w-full h-96 p-4 code-block rounded-lg resize-none text-xs leading-relaxed"
+                    placeholder="正在生成安装代码..."
+                ></textarea>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">🎯 使用技巧与格式说明</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-medium mb-2">💡 推荐设置：</h3>
+                        <div class="bg-gray-800 text-green-400 p-3 rounded text-xs">
+关键字示例：<br>
+• "复制" "copy"<br>
+• "获取" "查看"<br>
+• "显示" "点击"<br>
+• "下载" "导出"<br><br>
+延迟设置：<br>
+• 快速网站：1-2秒<br>
+• 慢速网站：3-5秒
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-medium mb-2">📄 新版文件格式：</h3>
+                        <div class="bg-gray-800 text-yellow-400 p-3 rounded text-xs">
+【第1组】关键字: 复制<br>
+采集时间: 2025/8/17 21:39:54<br>
+采集数量: 3条<br>
+<br>
+[1] 第一个复制的内容<br>
+    按钮: 复制按钮<br>
+    来源: 剪贴板<br>
+    时间: 21:39:54<br>
+<br>
+【第2组】关键字: 下载<br>
+采集时间: 2025/8/17 21:40:15<br>
+...
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg">
+                    <h3 class="font-medium mb-2 text-green-800">🔧 问题解决方案：</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <strong class="text-green-700">代码显示空白：</strong>
+                            <ul class="text-gray-700 ml-4 mt-1">
+                                <li>• 刷新页面重试</li>
+                                <li>• 检查网络连接</li>
+                                <li>• 等待代码完全加载</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong class="text-blue-700">采集无结果：</strong>
+                            <ul class="text-gray-700 ml-4 mt-1">
+                                <li>• 尝试不同关键字</li>
+                                <li>• 开启调试模式</li>
+                                <li>• 增加延迟时间</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 完整的安装代码字符串
+        const INSTALL_CODE = `// 🛡️ 网页采集工具 - 修复版 v5.3
+// 修复代码显示问题，优化文件格式，增强稳定性
+
+(function() {
+    'use strict';
+    
+    // 避免重复安装
+    if (window.webScraperV53) {
+        console.log('⚠️ 采集工具已存在，正在重新初始化...');
+        if (window.webScraperV53.panel) {
+            try { window.webScraperV53.panel.remove(); } catch(e) {}
+        }
+    }
+    
+    // 检查剪贴板API支持
+    const hasClipboardAPI = navigator.clipboard && navigator.clipboard.readText;
+    const hasExecCommand = document.queryCommandSupported && document.queryCommandSupported('copy');
+    
+    console.log('🔍 剪贴板API支持:', {
+        'Clipboard API': hasClipboardAPI,
+        'execCommand': hasExecCommand
+    });
+
+    // 创建工具面板
+    const panel = document.createElement('div');
+    panel.id = 'web-scraper-panel-v53';
+    panel.style.cssText = \`
+        position: fixed; top: 20px; right: 20px; width: 380px;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white; padding: 16px; border-radius: 16px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 12px; z-index: 2147483647;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.3);
+        max-height: 700px; overflow-y: auto; backdrop-filter: blur(10px);
+    \`;
+
+    panel.innerHTML = \`
+        <div style="text-align: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px;">
+            <strong>🛡️ 修复版采集工具 v5.3</strong>
+        </div>
+        <div id="permissionCheck" style="background: rgba(255,255,255,0.1); padding: 8px; border-radius: 6px; margin-bottom: 10px; font-size: 10px;">
+            📋 正在检查剪贴板权限...
+        </div>
+        <div style="margin-bottom: 12px;">
+            <label style="display: block; margin-bottom: 5px; font-size: 11px;">🔍 按钮关键字：</label>
+            <div style="display: flex; gap: 5px; margin-bottom: 6px;">
+                <input type="text" id="keyword1" value="复制" placeholder="关键字1" style="flex: 1; padding: 6px; border: none; border-radius: 6px; color: #333; font-size: 11px;">
+                <input type="text" id="keyword2" value="获取" placeholder="关键字2" style="flex: 1; padding: 6px; border: none; border-radius: 6px; color: #333; font-size: 11px;">
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 6px;">
+                <label style="font-size: 10px; color: #E3F2FD;">
+                    <input type="checkbox" id="matchBoth" style="margin-right: 3px;">必须同时匹配
+                </label>
+                <label style="font-size: 10px; color: #E3F2FD;">
+                    <input type="checkbox" id="debugMode" style="margin-right: 3px;">调试模式
+                </label>
+            </div>
+            <div style="margin-bottom: 6px;">
+                <label style="font-size: 10px; display: block; margin-bottom: 2px;">⏱️ 点击延迟 (秒):</label>
+                <input type="range" id="delaySlider" min="1" max="10" value="2" style="width: 100%;">
+                <span id="delayValue" style="font-size: 10px;">2秒</span>
+            </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 10px;">
+            <button id="testBtn" style="background: rgba(156,39,176,0.8); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 10px;">🧪 测试按钮</button>
+            <button id="checkPermBtn" style="background: rgba(255,152,0,0.8); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 10px;">🔍 检查权限</button>
+            <button id="startBtn" style="background: rgba(76,175,80,0.8); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 10px;">🚀 开始采集</button>
+            <button id="stopBtn" style="background: rgba(244,67,54,0.8); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 10px; display: none;">⏹️ 停止</button>
+            <button id="clearBtn" style="background: rgba(96,125,139,0.8); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 10px;">🗑️ 清空</button>
+            <button id="exportBtn" style="background: rgba(63,81,181,0.8); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 10px; display: none;">💾 导出</button>
+        </div>
+        <div id="statsDiv" style="background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; font-size: 10px; margin-bottom: 10px; text-align: center;">
+            📊 找到按钮: <span id="foundCount">0</span> | 已采集: <span id="resultCount">0</span> | 成功率: <span id="successRate">0%</span>
+        </div>
+        <div id="statusDiv" style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 10px; max-height: 200px; overflow-y: auto; line-height: 1.3;">
+            🎯 工具已就绪，请设置关键字后点击测试或开始
+        </div>
+    \`;
+    
+    document.body.appendChild(panel);
+
+    // 工具变量
+    let isRunning = false, shouldStop = false, results = [], foundButtons = [];
+    let keywordGroups = new Map(), processedButtons = new Set();
+    let currentDelay = 2000, debugMode = false;
+    
+    // DOM元素
+    const elements = {
+        permissionCheck: document.getElementById('permissionCheck'),
+        statusDiv: document.getElementById('statusDiv'),
+        testBtn: document.getElementById('testBtn'),
+        checkPermBtn: document.getElementById('checkPermBtn'),
+        startBtn: document.getElementById('startBtn'),
+        stopBtn: document.getElementById('stopBtn'),
+        clearBtn: document.getElementById('clearBtn'),
+        exportBtn: document.getElementById('exportBtn'),
+        foundCount: document.getElementById('foundCount'),
+        resultCount: document.getElementById('resultCount'),
+        successRate: document.getElementById('successRate'),
+        delaySlider: document.getElementById('delaySlider'),
+        delayValue: document.getElementById('delayValue')
+    };
+    
+    // 日志函数
+    function log(message, type = 'info') {
+        const colors = { info: '#E3F2FD', success: '#4CAF50', warning: '#FF9800', error: '#f44336', debug: '#9C27B0' };
+        const time = new Date().toLocaleTimeString();
+        const color = colors[type] || '#E3F2FD';
+        elements.statusDiv.innerHTML += \`<div style="color: \${color}; margin: 2px 0;">[\${time}] \${message}</div>\`;
+        elements.statusDiv.scrollTop = elements.statusDiv.scrollHeight;
+        console.log(\`[WebScraper] \${message}\`);
+    }
+    
+    // 更新统计信息
+    function updateStats() {
+        elements.foundCount.textContent = foundButtons.length;
+        elements.resultCount.textContent = results.length;
+        const rate = foundButtons.length > 0 ? Math.round((results.length / foundButtons.length) * 100) : 0;
+        elements.successRate.textContent = rate + '%';
+        if (results.length > 0) elements.exportBtn.style.display = 'block';
+    }
+    
+    // 延迟函数
+    function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+    // 剪贴板权限检查
+    async function checkClipboardPermission() {
+        try {
+            if (navigator.permissions) {
+                const result = await navigator.permissions.query({name: 'clipboard-read'});
+                elements.permissionCheck.innerHTML = \`📋 剪贴板权限: \${result.state}\`;
+                elements.permissionCheck.style.background = result.state === 'granted' ? 'rgba(76,175,80,0.3)' : 'rgba(255,152,0,0.3)';
+                return result.state === 'granted';
+            }
+        } catch(e) { elements.permissionCheck.innerHTML = '📋 无法检查权限状态'; }
+        return false;
+    }
+    
+    // 获取剪贴板内容
+    async function getClipboardContent() {
+        if (hasClipboardAPI) {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (debugMode) log('📋 使用Clipboard API获取内容', 'debug');
+                return text;
+            } catch (e) { if (debugMode) log(\`Clipboard API失败: \${e.message}\`, 'debug'); }
+        }
+        if (hasExecCommand) {
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+                document.body.appendChild(textarea);
+                textarea.focus(); textarea.select();
+                const success = document.execCommand('paste');
+                const content = textarea.value;
+                document.body.removeChild(textarea);
+                if (success && content) {
+                    if (debugMode) log('📋 使用execCommand获取内容', 'debug');
+                    return content;
+                }
+            } catch (e) { if (debugMode) log(\`execCommand失败: \${e.message}\`, 'debug'); }
+        }
+        return '';
+    }
+
+    // 查找按钮
+    function findButtons() {
+        const keyword1 = document.getElementById('keyword1').value.trim();
+        const keyword2 = document.getElementById('keyword2').value.trim();
+        const matchBoth = document.getElementById('matchBoth').checked;
+        
+        if (!keyword1 && !keyword2) {
+            log('⚠️ 请至少输入一个关键字', 'error');
+            return [];
+        }
+        
+        const buttons = [];
+        const selectors = [
+            'button:not([disabled])', 'input[type="button"]:not([disabled])', 'input[type="submit"]:not([disabled])',
+            'a[href]:not([href=""])', '.btn:not(.disabled)', '.button:not(.disabled)',
+            '.copy-btn, .copy-button', '[onclick]:not([disabled])', '[role="button"]:not([disabled])',
+            '.clickable:not(.disabled)', '[data-copy]', '[data-clipboard-text]'
+        ];
+        
+        log(\`🔍 搜索关键字: "\${keyword1}", "\${keyword2}"\`, 'info');
+        
+        selectors.forEach(selector => {
+            try {
+                const elements = document.querySelectorAll(selector);
+                if (debugMode) log(\`  检查 \${selector}: \${elements.length} 个\`, 'debug');
+                
+                Array.from(elements).forEach((elem, index) => {
+                    const rect = elem.getBoundingClientRect();
+                    if (rect.width === 0 && rect.height === 0) return;
+                    
+                    const style = window.getComputedStyle(elem);
+                    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return;
+                    
+                    const text = (elem.textContent || elem.value || elem.title || elem.getAttribute('aria-label') || 
+                                elem.getAttribute('data-tooltip') || elem.getAttribute('alt') || elem.getAttribute('data-copy') ||
+                                elem.getAttribute('data-clipboard-text') || '').toLowerCase().trim();
+                    
+                    if (!text) return;
+                    
+                    const hasKeyword1 = keyword1 && text.includes(keyword1.toLowerCase());
+                    const hasKeyword2 = keyword2 && text.includes(keyword2.toLowerCase());
+                    const matches = matchBoth ? (hasKeyword1 && hasKeyword2) : (hasKeyword1 || hasKeyword2);
+                    
+                    if (matches) {
+                        const buttonInfo = {
+                            element: elem,
+                            text: (elem.textContent || elem.value || elem.title || '未知按钮').trim().substring(0, 50),
+                            selector: selector,
+                            matchedKeywords: [hasKeyword1 ? keyword1 : null, hasKeyword2 ? keyword2 : null].filter(k => k),
+                            id: \`\${selector}_\${index}_\${Date.now()}_\${Math.random().toString(36).substr(2, 5)}\`
+                        };
+                        buttons.push(buttonInfo);
+                        if (debugMode) log(\`  ✅ 匹配: "\${buttonInfo.text}"\`, 'debug');
+                    }
+                });
+            } catch(e) { if (debugMode) log(\`  ⚠️ 选择器错误 \${selector}\`, 'debug'); }
+        });
+        
+        // 去重
+        const uniqueButtons = [], seen = new Set();
+        buttons.forEach(btn => {
+            const key = btn.element.outerHTML + btn.text;
+            if (!seen.has(key)) { seen.add(key); uniqueButtons.push(btn); }
+        });
+        
+        return uniqueButtons;
+    }
+
+    // 获取页面可见文本
+    function getPageVisibleText() {
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+            acceptNode: function(node) {
+                if (['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(node.parentNode.tagName)) return NodeFilter.FILTER_REJECT;
+                const style = window.getComputedStyle(node.parentNode);
+                if (style.display === 'none' || style.visibility === 'hidden') return NodeFilter.FILTER_REJECT;
+                return node.textContent.trim().length > 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+            }
+        });
+        const textNodes = []; let node;
+        while (node = walker.nextNode()) textNodes.push(node.textContent.trim());
+        return textNodes.join(' ').trim();
+    }
+    
+    // 点击按钮并采集内容
+    async function clickButtonAndCapture(buttonInfo) {
+        try {
+            const button = buttonInfo.element;
+            log(\`🎯 点击: \${buttonInfo.text}\`, 'info');
+            
+            button.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            await delay(500);
+            if (shouldStop) return false;
+            
+            const beforeClipboard = await getClipboardContent();
+            const beforePageText = getPageVisibleText();
+            
+            // 高亮按钮
+            const originalStyle = button.style.cssText;
+            button.style.cssText += 'border: 3px solid #ff0000 !important; box-shadow: 0 0 10px rgba(255,0,0,0.5) !important;';
+            
+            // 多种点击方式
+            try { button.click(); if (debugMode) log('  ✅ 直接点击', 'debug'); }
+            catch(e) {
+                try {
+                    const rect = button.getBoundingClientRect();
+                    ['mousedown', 'mouseup', 'click'].forEach(eventType => {
+                        const event = new MouseEvent(eventType, {
+                            view: window, bubbles: true, cancelable: true,
+                            clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2
+                        });
+                        button.dispatchEvent(event);
+                    });
+                    if (debugMode) log('  ✅ 模拟点击', 'debug');
+                } catch(e) {
+                    button.focus();
+                    button.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter' }));
+                    if (debugMode) log('  ✅ 回车触发', 'debug');
+                }
+            }
+            
+            await delay(currentDelay);
+            button.style.cssText = originalStyle;
+            if (shouldStop) return false;
+            
+            const afterClipboard = await getClipboardContent();
+            const afterPageText = getPageVisibleText();
+            
+            let capturedContent = '', contentSource = '';
+            
+            // 检查剪贴板变化
+            if (afterClipboard && afterClipboard !== beforeClipboard && afterClipboard.trim().length > 0) {
+                capturedContent = afterClipboard.trim(); contentSource = '剪贴板';
+            }
+            // 检查页面变化
+            else if (afterPageText && afterPageText !== beforePageText) {
+                const textDiff = afterPageText.replace(beforePageText, '').trim();
+                if (textDiff.length > 0) { capturedContent = textDiff; contentSource = '页面变化'; }
+            }
+            // 检查按钮属性
+            else {
+                const dataContent = button.getAttribute('data-clipboard-text') || button.getAttribute('data-copy') || button.getAttribute('data-content');
+                if (dataContent && dataContent.trim().length > 0) { capturedContent = dataContent.trim(); contentSource = '按钮属性'; }
+            }
+            
+            // 从周围元素获取
+            if (!capturedContent) {
+                const nearbyElements = [button.nextElementSibling, button.previousElementSibling,
+                    button.parentElement.querySelector('input'), button.parentElement.querySelector('textarea'),
+                    button.parentElement.querySelector('.content'), button.parentElement.querySelector('[data-content]')];
+                
+                for (const elem of nearbyElements) {
+                    if (elem) {
+                        const content = (elem.textContent || elem.value || elem.getAttribute('data-content') || '').trim();
+                        if (content && content.length > 2) {
+                            capturedContent = content; contentSource = '周围元素'; break;
+                        }
+                    }
+                }
+            }
+
+            // 验证和保存内容
+            if (capturedContent) {
+                const invalidPatterns = [
+                    /^(复制|copy|已复制|复制成功|获取|点击|下载|导出|查看|显示)$/i,
+                    /^.{0,2}$/, /^.{500,}$/, /^https?:\\/\\/[\\w.-]+\\/?$/
+                ];
+                
+                if (invalidPatterns.some(pattern => pattern.test(capturedContent))) {
+                    log(\`⚠️ 过滤无效内容(\${contentSource}): \${capturedContent.substring(0, 30)}...\`, 'warning');
+                    return false;
+                }
+                
+                if (results.some(r => r.content === capturedContent)) {
+                    log(\`⚠️ 内容重复: \${capturedContent.substring(0, 30)}...\`, 'warning');
+                    return false;
+                }
+                
+                const keywordGroup = buttonInfo.matchedKeywords.sort().join(' + ');
+                const currentTime = new Date().toLocaleString();
+                
+                const resultItem = {
+                    buttonText: buttonInfo.text, content: capturedContent, time: currentTime,
+                    url: window.location.href, buttonSelector: buttonInfo.selector,
+                    contentLength: capturedContent.length, contentSource: contentSource,
+                    keywordGroup: keywordGroup, matchedKeywords: buttonInfo.matchedKeywords
+                };
+                
+                results.push(resultItem);
+                
+                // 按关键字分组
+                if (!keywordGroups.has(keywordGroup)) {
+                    keywordGroups.set(keywordGroup, {
+                        keywords: buttonInfo.matchedKeywords, items: [], collectionTime: currentTime
+                    });
+                }
+                keywordGroups.get(keywordGroup).items.push(resultItem);
+                
+                log(\`✅ 成功采集(\${contentSource}, \${capturedContent.length}字符): \${capturedContent.substring(0, 50)}\${capturedContent.length > 50 ? '...' : ''}\`, 'success');
+                updateStats();
+                return true;
+            } else {
+                log(\`⚠️ 未获取到内容: \${buttonInfo.text}\`, 'warning');
+                return false;
+            }
+            
+        } catch (error) {
+            log(\`❌ 点击出错: \${error.message}\`, 'error');
+            return false;
+        }
+    }
+    
+    // 测试按钮查找
+    async function testButtons() {
+        debugMode = document.getElementById('debugMode').checked;
+        log('🧪 测试按钮查找...', 'info');
+        foundButtons = findButtons();
+        
+        if (foundButtons.length === 0) {
+            log('⚠️ 没有找到匹配的按钮，请检查关键字', 'error');
+            log('💡 建议尝试: "复制", "copy", "获取", "查看", "显示", "下载"', 'info');
+        } else {
+            log(\`✅ 找到 \${foundButtons.length} 个按钮:\`, 'success');
+            foundButtons.forEach((btn, index) => {
+                log(\`  \${index + 1}. "\${btn.text}" (关键字: \${btn.matchedKeywords.join(', ')})\`, 'info');
+            });
+        }
+        updateStats();
+    }
+    
+    // 开始采集
+    async function startScraping() {
+        if (isRunning) return;
+        debugMode = document.getElementById('debugMode').checked;
+        
+        if (foundButtons.length === 0) {
+            await testButtons();
+            if (foundButtons.length === 0) return;
+        }
+        
+        isRunning = true; shouldStop = false;
+        elements.startBtn.style.display = 'none';
+        elements.stopBtn.style.display = 'block';
+        elements.testBtn.disabled = true;
+        
+        log('🚀 开始自动采集...', 'info');
+        let successCount = 0, failCount = 0;
+        
+        for (let i = 0; i < foundButtons.length && !shouldStop; i++) {
+            const buttonInfo = foundButtons[i];
+            
+            if (processedButtons.has(buttonInfo.id)) {
+                log(\`⭐ 跳过已处理: \${buttonInfo.text}\`, 'info');
+                continue;
+            }
+            
+            log(\`🎯 处理 \${i + 1}/\${foundButtons.length}: \${buttonInfo.text}\`, 'info');
+            const success = await clickButtonAndCapture(buttonInfo);
+            processedButtons.add(buttonInfo.id);
+            
+            if (success) successCount++; else failCount++;
+            updateStats();
+            
+            if (!shouldStop && i < foundButtons.length - 1) {
+                await delay(Math.max(1000, currentDelay / 2));
+            }
+        }
+        
+        isRunning = false;
+        elements.startBtn.style.display = 'block';
+        elements.stopBtn.style.display = 'none';
+        elements.testBtn.disabled = false;
+        
+        if (shouldStop) {
+            log('⏹️ 采集已停止', 'warning');
+        } else {
+            log(\`🎉 采集完成! 成功: \${successCount}, 失败: \${failCount}\`, 'success');
+        }
+    }
+    
+    // 停止采集
+    function stopScraping() {
+        shouldStop = true;
+        log('🛑 正在停止采集...', 'warning');
+    }
+    
+    // 清空结果
+    function clearResults() {
+        results = []; keywordGroups.clear(); processedButtons.clear(); foundButtons = [];
+        updateStats(); elements.statusDiv.innerHTML = '';
+        log('🗑️ 已清空所有数据', 'info');
+    }
+    
+    // 导出结果
+    function exportResults() {
+        if (results.length === 0) { alert('没有数据可导出'); return; }
+        
+        const content = generateFileContent();
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = \`采集结果_\${new Date().toISOString().slice(0,19).replace(/[:-]/g, '')}.txt\`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        log('💾 文件已导出', 'success');
+    }
+    
+    // 生成改进的文件内容
+    function generateFileContent() {
+        let content = '网页内容采集结果 - 修复版 v5.3\\n';
+        content += '='.repeat(60) + '\\n';
+        content += \`采集时间: \${new Date().toLocaleString()}\\n\`;
+        content += \`采集网址: \${window.location.href}\\n\`;
+        content += \`关键字1: \${document.getElementById('keyword1').value}\\n\`;
+        content += \`关键字2: \${document.getElementById('keyword2').value}\\n\`;
+        content += \`匹配模式: \${document.getElementById('matchBoth').checked ? '同时匹配' : '任一匹配'}\\n\`;
+        content += \`点击延迟: \${currentDelay/1000}秒\\n\`;
+        content += \`总共采集: \${results.length} 条数据\\n\`;
+        content += \`关键字组合: \${keywordGroups.size} 个分组\\n\`;
+        content += \`成功率: \${foundButtons.length > 0 ? Math.round((results.length / foundButtons.length) * 100) : 0}%\\n\`;
+        content += '='.repeat(60) + '\\n\\n';
+        
+        // 按关键字分组显示 - 改进格式
+        let groupIndex = 1;
+        for (const [keywordGroup, groupData] of keywordGroups) {
+            content += \`【第\${groupIndex}组】关键字: \${keywordGroup}\\n\`;
+            content += \`采集时间: \${groupData.collectionTime}\\n\`;
+            content += \`采集数量: \${groupData.items.length} 条\\n\`;
+            content += '\\n';
+            
+            groupData.items.forEach((item, index) => {
+                content += \`[\${index + 1}] \${item.content}\\n\`;
+                content += \`    按钮: \${item.buttonText}\\n\`;
+                content += \`    来源: \${item.contentSource}\\n\`;
+                content += \`    长度: \${item.contentLength} 字符\\n\`;
+                content += \`    时间: \${item.time}\\n\`;
+                if (debugMode) {
+                    content += \`    选择器: \${item.buttonSelector}\\n\`;
+                    content += \`    匹配关键字: \${item.matchedKeywords.join(', ')}\\n\`;
+                }
+                content += '\\n';
+            });
+            
+            content += '-'.repeat(40) + '\\n\\n';
+            groupIndex++;
+        }
+        
+        // 全部结果汇总
+        if (keywordGroups.size > 1) {
+            content += '【全部结果汇总】\\n';
+            content += '-'.repeat(40) + '\\n';
+            results.forEach((item, index) => {
+                content += \`[\${index + 1}] \${item.content}\\n\`;
+            });
+            content += '\\n';
+        }
+        
+        return content;
+    }
+    
+    // 事件绑定
+    elements.delaySlider.addEventListener('input', function() {
+        currentDelay = this.value * 1000;
+        elements.delayValue.textContent = this.value + '秒';
+    });
+    
+    elements.testBtn.addEventListener('click', testButtons);
+    elements.checkPermBtn.addEventListener('click', checkClipboardPermission);
+    elements.startBtn.addEventListener('click', startScraping);
+    elements.stopBtn.addEventListener('click', stopScraping);
+    elements.clearBtn.addEventListener('click', clearResults);
+    elements.exportBtn.addEventListener('click', exportResults);
+    
+    // 快捷键
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey) {
+            switch(e.key.toLowerCase()) {
+                case 't': e.preventDefault(); testButtons(); break;
+                case 's': e.preventDefault(); if (!isRunning) startScraping(); break;
+                case 'x': e.preventDefault(); if (isRunning) stopScraping(); break;
+                case 'c': e.preventDefault(); clearResults(); break;
+            }
+        }
+    });
+    
+    // 初始化
+    checkClipboardPermission();
+    
+    // 全局对象
+    window.webScraperV53 = {
+        version: '5.3', panel: panel, results: results, keywordGroups: keywordGroups,
+        test: testButtons, start: startScraping, stop: stopScraping,
+        clear: clearResults, export: exportResults
+    };
+    
+    log('🛡️ 修复版采集工具已就绪! v5.3', 'success');
+    log('🔧 新功能: 修复代码显示，优化文件格式', 'info');
+    log('💡 快捷键: Ctrl+Shift+T(测试) S(开始) X(停止) C(清空)', 'info');
+    log('📝 使用步骤: 1.设置关键字 → 2.测试按钮 → 3.开始采集 → 4.导出结果', 'info');
+    
+    console.log('✅ 修复版网页采集工具安装成功! v5.3');
+    console.log('🛠️ 主要修复:');
+    console.log('  • 彻底修复安装代码显示空白问题');
+    console.log('  • 解决复制按钮无反应的问题'); 
+    console.log('  • 优化文件导出格式，去除多余分隔符');
+    console.log('  • 改进代码构建方式，避免模板冲突');
+    console.log('  • 提升界面响应速度和稳定性');
+    console.log('📄 文件格式:');
+    console.log('  【第N组】关键字: 复制+获取');
+    console.log('  采集时间: 2025/8/17 21:39:54');
+    console.log('  采集数量: 3条');
+    console.log('  [1] 采集到的内容1');
+    console.log('      按钮: 复制按钮');
+    console.log('      来源: 剪贴板');
+    console.log('      时间: 21:39:54');
+})();`;
+
+        // 页面加载完成后设置代码
+        function initializePage() {
+            const textarea = document.getElementById('installCode');
+            const statusElement = document.getElementById('codeStatus');
+            const lengthElement = document.getElementById('codeLength');
+            
+            if (textarea && statusElement && lengthElement) {
+                textarea.value = INSTALL_CODE;
+                statusElement.textContent = '已就绪';
+                statusElement.className = 'font-medium text-green-600';
+                lengthElement.textContent = INSTALL_CODE.length.toLocaleString();
+                
+                // 添加代码预览功能
+                textarea.style.fontSize = '11px';
+                textarea.style.lineHeight = '1.4';
+            }
+        }
+
+        // 复制安装代码函数
+        function copyInstallCode() {
+            const textarea = document.getElementById('installCode');
+            const btn = document.getElementById('copyButton');
+            
+            if (!textarea.value.trim()) {
+                alert('⚠️ 代码未加载完成，请稍候重试');
+                return;
+            }
+            
+            // 选择并复制
+            textarea.select();
+            textarea.setSelectionRange(0, 99999); // 移动端兼容
+            
+            let copySuccess = false;
+            
+            // 尝试现代API
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(textarea.value).then(() => {
+                    copySuccess = true;
+                    showCopySuccess(btn);
+                }).catch(() => {
+                    // 降级到execCommand
+                    copySuccess = document.execCommand('copy');
+                    if (copySuccess) showCopySuccess(btn);
+                    else showCopyError(btn);
+                });
+            } else {
+                // 直接使用execCommand
+                copySuccess = document.execCommand('copy');
+                if (copySuccess) showCopySuccess(btn);
+                else showCopyError(btn);
+            }
+        }
+        
+        function showCopySuccess(btn) {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✅ 已复制!';
+            btn.className = btn.className.replace('from-blue-600 to-purple-600', 'from-green-600 to-green-700');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.className = btn.className.replace('from-green-600 to-green-700', 'from-blue-600 to-purple-600');
+            }, 3000);
+            
+            // 成功提示
+            showDetailedAlert();
+        }
+        
+        function showCopyError(btn) {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '❌ 复制失败';
+            btn.className = btn.className.replace('from-blue-600 to-purple-600', 'from-red-600 to-red-700');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.className = btn.className.replace('from-red-600 to-red-700', 'from-blue-600 to-purple-600');
+            }, 3000);
+            
+            alert('复制失败，请手动选择代码区域复制');
+        }
+        
+        function showDetailedAlert() {
+            alert(`🛡️ 修复版采集工具代码已复制到剪贴板！
+
+🔥 v5.3 主要修复：
+✅ 彻底修复安装代码显示空白问题
+✅ 解决复制按钮无反应的问题
+✅ 优化文件导出格式，去除多余====分隔符
+✅ 改进代码构建方式，避免模板字符串冲突
+✅ 提升界面响应速度和稳定性
+
+🆕 核心功能：
+📋 多种剪贴板访问方式
+📄 页面内容变化检测  
+🔍 按钮属性内容提取
+🎯 周围元素内容查找
+📊 按关键字组合自动分组
+
+🎯 使用步骤：
+1. 打开目标网页
+2. 按F12打开控制台，粘贴代码并回车
+3. 点击"检查权限"确认剪贴板权限
+4. 设置关键字(如"复制"、"获取")
+5. 先"测试按钮"再"开始采集"
+6. 导出结果会按关键字分组显示
+
+📄 新版文件格式：
+【第1组】关键字: 复制
+采集时间: 2025/8/17 21:39:54
+采集数量: 3条
+
+[1] 第一个采集到的内容
+    按钮: 复制按钮
+    来源: 剪贴板
+    长度: 45 字符
+    时间: 21:39:54
+
+[2] 第二个采集到的内容
+    ...
+
+【第2组】关键字: 下载
+采集时间: 2025/8/17 21:40:15
+...
+
+💡 解决空白问题的方法：
+• 自动检测剪贴板内容变化
+• 监控页面文本内容变化  
+• 从按钮data属性获取内容
+• 搜索周围相关元素内容
+• 多种备用内容获取策略
+
+🔧 故障排除：
+• 如果代码区域仍为空，请刷新页面重试
+• 复制区域空白请开启调试模式查看详情
+• 找不到按钮尝试不同的关键字组合
+• 采集失败可增加延迟时间
+• 权限问题请在浏览器中选择"允许"`);
+        }
+
+        // 页面加载时初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializePage);
+        } else {
+            initializePage();
+        }
+        
+        // 代码区域点击自动选中
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById('installCode');
+            if (textarea) {
+                textarea.addEventListener('click', function() {
+                    this.select();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+                        
